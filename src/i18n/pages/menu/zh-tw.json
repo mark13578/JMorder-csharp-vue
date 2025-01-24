@@ -1,0 +1,23 @@
+{
+  "m": {
+    "menuName": "選單名稱",
+    "menuState": "選單狀態",
+    "icon": "選單圖標",
+    "menuid": "選單id",
+    "menuType": "選單類型",
+    "sort": "排序",
+    "authorityID": "權限標識",
+    "componentPath": "組件路徑",
+    "isShow": "是否顯示",
+    "parentMenu": "上級選單",
+    "directory": "目錄",
+    "menu": "選單",
+    "button": "按鈕",
+    "link": "鏈接",
+    "isFrame": "是否外鏈",
+    "routePath": "路由地址",
+    "permissionStr": "權限字符",
+    "isCache": "是否緩存",
+    "menuNameKey": "選單名"
+  }
+}
