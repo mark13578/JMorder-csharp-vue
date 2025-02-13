@@ -60,3 +60,11 @@ export function delCreateOrder(pid) {
 export async function exportCreateOrder(query) {
   await downFile('business/CreateOrder/export', { ...query })
 }
+
+export function addOrderFile(data) {
+  return request({
+    url: 'business/Order2/addFile',
+    method: 'post',
+    data: data,
+  });
+}

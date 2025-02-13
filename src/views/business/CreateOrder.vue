@@ -464,27 +464,25 @@
           </el-table-column>
         </el-table>
         <el-divider content-position="center">建立訂單_檔案上傳</el-divider>
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-        <el-button type="primary" v-hasPermi="['tool:file:add']" plain icon="upload" @click="handleAdd">
-          {{ $t('btn.upload') }}
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" :disabled="multiple" v-hasPermi="['tool:file:delete']" plain icon="delete" @click="handleDelete">
-          {{ $t('btn.delete') }}
-        </el-button>
-      </el-col>
-      <right-toolbar :showSearch="showSearch" @queryTable="getList"> </right-toolbar>
-          
-        </el-row>
-        <el-table :data="order3List" :row-class-name="rowOrder3Index" @selection-change="handleOrder3SelectionChange" ref="Order3Ref">
-          <el-table-column type="selection" width="40" align="center" />
-          <el-table-column label="序號" align="center" prop="index" width="50"/>
-          <el-table-column label="檔案名稱" align="center" prop="FileName"/>
-          <el-table-column label="檔案大小" align="center" prop="FileType"/>          
-        </el-table>
-        
+        <el-button type="primary" @click="showUploadDialog">新增文件</el-button>
+
+
+        /*
+    <el-dialog title="上傳文件" v-model="uploadDialogVisible" width="50%">
+      <el-upload
+        ref="upload"
+        action="tool/file" 
+        :http-request="handleFileUpload"
+        :show-file-list="true"
+        :before-upload="beforeUpload"
+        multiple>
+        <el-button slot="trigger" type="primary">選擇文件</el-button>
+      </el-upload>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="uploadDialogVisible = false">取消</el-button>
+      </span>
+    </el-dialog>
+*/
         <el-divider content-position="center">輸入地址</el-divider>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
@@ -537,153 +535,76 @@
       </el-form>
 
       
-    <el-dialog :title="title" :lock-scroll="false" v-model="open" width="400px" draggable>
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="90px" label-position="left">
-        <el-row>
-          <el-col :lg="24">
-            <el-form-item label="存储类型" prop="storeType">
-              <el-radio-group v-model="form.storeType" placeholder="请选择存储类型">
-                <el-radio-button v-for="item in storeTypeOptions" :key="item.dictValue" :value="parseInt(item.dictValue)">
-                  {{ item.dictLabel }}
-                </el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="24">
-            <el-form-item label="存储目录" prop="storePath">
-              <template #label>
-                <span>
-                  <el-tooltip content="文件目录不填则默认使用本地上传格式：yyyy/MMdd" placement="top">
-                    <el-icon :size="15">
-                      <questionFilled />
-                    </el-icon>
-                  </el-tooltip>
-                  存储目录
-                </span>
-              </template>
-              <!-- <el-input v-model="form.storePath" placeholder="请输入文件目录，默认yyyy/MMdd格式" clearable="" auto-complete="" /> -->
-              <el-select
-                style="width: 100%"
-                v-model="form.storePath"
-                allow-create
-                clearable
-                filterable
-                default-first-option
-                :reserve-keyword="false"
-                placeholder="请输入文件目录，默认yyyy/MMdd格式">
-                <el-option v-for="item in saveDirOptions" :key="item.dictValue" :label="item.dictLabel" :value="item.dictValue" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="24">
-            <el-form-item label="文件名规则" prop="fileNameType">
-              <el-radio-group v-model="form.fileNameType" placeholder="请选择文件名存储类型">
-                <el-radio v-for="item in fileNameTypeOptions" :key="item.dictValue" :value="parseInt(item.dictValue)">
-                  {{ item.dictLabel }}
-                </el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="24" v-if="form.fileNameType == 2">
-            <el-form-item label="自定文件名" prop="fileName">
-              <el-input v-model="form.fileName" placeholder="请输入文件名" clearable="" />
-            </el-form-item>
-          </el-col>
-          <el-col :lg="24">
-            <UploadFile
-              ref="uploadRef"
-              v-model="form.accessUrl"
-              :fileType="[]"
-              :fileSize="100"
-              :drag="true"
-              :data="uploadData"
-              :autoUpload="false"
-              @success="handleUploadSuccess" />
-          </el-col>
-        </el-row>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button text @click="cancel">{{ $t('btn.cancel') }}</el-button>
-          <el-button type="primary" @click="submitUpload">{{ $t('btn.submit') }}</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    
 
-    <el-dialog :lock-scroll="false" v-model="openView">
-      <el-form ref="form" :model="formView" :rules="rules" label-width="90px" label-position="left">
-        <el-row>
-          <el-col :lg="12">
-            <el-form-item label="文件id">{{ formView.id }}</el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="源文件名">{{ formView.realName }}</el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="文件类型">
-              <el-tag>{{ formView.fileType }}</el-tag>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="扩展名">
-              <el-tag>{{ formView.fileExt }}</el-tag>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="文件名">{{ formView.fileName }}</el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="存储目录">{{ formView.storePath }}</el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="文件大小">{{ formView.fileSize }}</el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="创建人">{{ formView.create_by }}</el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="预览">
-              <el-image :src="formView.accessUrl" fit="contain" style="width: 100px"></el-image>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="12">
-            <el-form-item label="二维码">
-              <div ref="imgContainerRef" id="imgContainer" class="qrCode"></div>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="24">
-            <el-form-item label="访问路径">
-              {{ formView.accessUrl }}
-              <el-button class="copy-btn-main" icon="document-copy" text @click="copyText(formView.accessUrl)">
-                {{ $t('btn.copy') }}
-              </el-button>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="24">
-            <el-form-item label="存储路径">
-              <div>
-                {{ formView.fileUrl }}
-              </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-    </el-dialog>
+
 
       <template #footer v-if="opertype != 3">
         <el-button text @click="cancel">{{ $t('btn.cancel') }}</el-button>
         <el-button type="primary" @click="submitForm">{{ $t('btn.submit') }}</el-button>
       </template>
     </el-dialog>
+
+       
   </div>
 </template>
 
+
 <script setup name="createorder">
+import { addSysfile } from '@/api/tool/file';  // 檔案上傳 API
+import { addOrderFile } from '@/api/business/createorder';  // 訂單與檔案關聯 API
+import { getCurrentInstance, ref, reactive, toRefs } from 'vue';
 import { listCreateOrder,
  addCreateOrder, delCreateOrder, 
  updateCreateOrder,getCreateOrder, 
  } 
-from '@/api/business/createorder.js'
+  from '@/api/business/createorder.js'
+
+/******************* 檔案上傳 *******************/
+
+// 添加上傳相關的響應式變數
+const uploadDialogVisible = ref(false)
+const currentOrderId = ref(null)
+
+// 添加上傳相關的方法
+function showUploadDialog() {
+  uploadDialogVisible.value = true
+}
+
+function beforeUpload(file) {
+  console.log('即將上傳的文件:', file)
+  return true
+}
+
+async function handleFileUpload({ file }) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    const response = await addSysfile(formData)
+    console.log('文件上傳成功:', response)
+
+    const fileData = {
+      orderId: currentOrderId.value,
+      fileName: file.name,
+      fileUrl: response.data.url,
+      fileSize: file.size,
+      uploadTime: new Date().toISOString()
+    }
+
+    await addOrderFile(fileData)
+    console.log('檔案資訊已存入 MySQL:', fileData)
+
+    uploadDialogVisible.value = false
+    proxy.$modal.msgSuccess('上傳成功')
+  } catch (error) {
+    console.error('文件上傳或資料存入失敗:', error)
+    proxy.$modal.msgError('上傳失敗')
+  }
+}
+
+/******************* 建立訂單 *******************/
+
 const { proxy } = getCurrentInstance()
 const ids = ref([])
 const loading = ref(false)
@@ -924,6 +845,13 @@ function handleAdd() {
   title.value = '添加建立工單'
   opertype.value = 1
 }
+// 檔案上傳
+function handleFileAdd() {
+  reset();
+  open.value = true
+  title.value = '添加建立工單'
+  opertype.value = 1
+}
 // 修改按鈕操作
 function handleUpdate(row) {
   reset()
@@ -1116,5 +1044,7 @@ function rowClick(row) {
     }
   })
 }
+
+
 handleQuery()
 </script>
